@@ -9,7 +9,7 @@ public class Arrow : MonoBehaviour
 
     void Start()
     {
-        _force = 15 * Time.deltaTime;
+        _force = 10 * Time.deltaTime;
     }
 
     // Update is called once per frame
