@@ -10,6 +10,7 @@ public class Ball : MonoBehaviour
 
     private Rigidbody _rb;
     private AudioSource _strike;
+    private AudioSource _rollingSound;
     private Vector3 _forceDirection;
     private float _forceMagnitude = 2000;
     private Vector3 _startPosition;
@@ -40,7 +41,10 @@ public class Ball : MonoBehaviour
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
-        _strike = GetComponent<AudioSource>();
+        //_strike = GetComponent<AudioSource>(); // get first component
+        AudioSource[] sounds = GetComponents<AudioSource>();
+        _strike = sounds[0];
+        _rollingSound = sounds[1];
         _forceDirection.Set(0, 0, 2000);
         _startPosition = this.transform.position;
         _isBallReady = true;
@@ -95,12 +99,23 @@ public class Ball : MonoBehaviour
 
         }
 
-
-        if (_rb.velocity.magnitude < 1 && _rb.velocity.magnitude > 0.5)
+        if (_rb.velocity.magnitude > 0.5)
         {
-            OnBallStop();
-            _isBallReady = true;
-            Arrow.active = true;
+            if (_rb.velocity.magnitude < 1)
+            {
+                OnBallStop();
+                _isBallReady = true;
+                Arrow.active = true;
+                if (!_rollingSound.isPlaying) _rollingSound.Stop();
+            }
+            else // moving state
+            {
+                //_rollingSound.
+                Debug.Log(_rb.velocity.sqrMagnitude);
+                _rollingSound.volume = _rb.velocity.sqrMagnitude / 1600;
+                if (!_rollingSound.isPlaying) _rollingSound.Play();
+                
+            }
         }
 
         if (Input.GetKeyUp(KeyCode.Space))
@@ -140,7 +155,7 @@ public class Ball : MonoBehaviour
                 // Debug.Log(kegel.name + " Down\t" + kegel.transform.position.y);
                 kegel.SetActive(false);
                 kegelsFall++;
-                Debug.Log($"kegelsFall {kegelsFall}");
+                //Debug.Log($"kegelsFall {kegelsFall}");
                 UpdateStatistic(Statistic.DOWN, _downText);
                 UpdateStatistic(Statistic.LEFT, _leftText);
                 
@@ -213,7 +228,7 @@ public class Ball : MonoBehaviour
                     * (moveTime < BonusTime
                         ? BonusTime - moveTime
                         : 1);
-                Debug.Log($"Score : {_score}");
+                //Debug.Log($"Score : {_score}");
 
                 tmp.text = $"Score : {_score}  {moveTime}";
 
@@ -248,7 +263,11 @@ public class Ball : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Kegel"))
         {
-            _strike.Play();
+            if (!_strike.isPlaying)
+            {
+                _strike.Play();
+            }
+           
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UserMenu : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class UserMenu : MonoBehaviour
     public static string ButtonText;
     public GameObject UserMenuContent;
     public TMP_Text buttonText;
+    public Slider SoundSlider;
+
+    public float SoundSliderValue { get; set; }
 
     private static bool prevState;
 
@@ -17,6 +21,7 @@ public class UserMenu : MonoBehaviour
         IsShown  = true;
         prevState = !IsShown;
         ButtonText = "Start";
+        SoundSliderValue = SoundSlider.value;
     }
 
     private void Update()
@@ -62,5 +67,9 @@ public class UserMenu : MonoBehaviour
         return false;
     }
 
+    public void SoundSliderChange()
+    {
+        SoundSliderValue = SoundSlider.value;
+    }
 
 }
