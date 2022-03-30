@@ -1,27 +1,48 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class UserMenu : MonoBehaviour
 {
+    private const string FILE_BEST_STAT = "best_stat.json";
+
     public static bool IsShown;
     public static string ButtonText;
+    public static UserMenuMode userMenuMode;
+
     public GameObject UserMenuContent;
     public TMP_Text buttonText;
+    public TMP_Text statText;
+    public TMP_Text bestStatText;
     public Slider SoundSlider;
 
     public float SoundSliderValue { get; set; }
 
     private static bool prevState;
+    private AudioSource[] _sounds;
 
     private void Start()
     {
         IsShown  = true;
         prevState = !IsShown;
         ButtonText = "Start";
-        SoundSliderValue = SoundSlider.value;
+
+        _sounds = GetComponents<AudioSource>();
+        SoundSliderChange();
+
+        if (File.Exists(FILE_BEST_STAT))
+        {
+
+        }
+        else
+        {
+            bestStatText.text = "No best stat";
+        }
+        statText.text = string.Empty;
     }
 
     private void Update()
@@ -70,6 +91,20 @@ public class UserMenu : MonoBehaviour
     public void SoundSliderChange()
     {
         SoundSliderValue = SoundSlider.value;
+
+        for (int i = 0; i < _sounds.Length; i++)
+        {
+            _sounds[i].volume = SoundSliderValue;
+        }
+
+        Debug.Log($"SoundSliderValue {SoundSliderValue}");
     }
 
+}
+
+public enum UserMenuMode
+{
+    START,
+    PAUSE,
+    GAMEOVER
 }

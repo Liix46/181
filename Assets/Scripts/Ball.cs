@@ -37,6 +37,8 @@ public class Ball : MonoBehaviour
     int kegelsFall = 0;
     int kegelsTurn = 0;
 
+    private UserMenu _menu;
+
 
     void Start()
     {
@@ -54,6 +56,8 @@ public class Ball : MonoBehaviour
         ForceIndicator.ForceFactor = 0f;
 
         _moveStartTime = 0f;
+
+        _menu = GameObject.Find("UserMenuCanvas").GetComponent<UserMenu>();
 
     }
 
@@ -111,8 +115,8 @@ public class Ball : MonoBehaviour
             else // moving state
             {
                 //_rollingSound.
-                Debug.Log(_rb.velocity.sqrMagnitude);
-                _rollingSound.volume = _rb.velocity.sqrMagnitude / 1600;
+                //Debug.Log(_rb.velocity.sqrMagnitude);
+                _rollingSound.volume = (_rb.velocity.sqrMagnitude / 1600) * _menu.SoundSliderValue;
                 if (!_rollingSound.isPlaying) _rollingSound.Play();
                 
             }
@@ -180,7 +184,7 @@ public class Ball : MonoBehaviour
         UpdateStatistic(Statistic.THROW, _throwText);
         UpdateStatistic(Statistic.SCORE, _scoreText);
 
-        Debug.Log($"last: {_lastcountDown}  |  countDown {_countDown}");
+        //Debug.Log($"last: {_lastcountDown}  |  countDown {_countDown}");
         _lastcountDown = _countDown;
 
        
@@ -189,9 +193,11 @@ public class Ball : MonoBehaviour
             //Show menu
             UserMenu.IsShown = true;
             // Button text
-            UserMenu.ButtonText = "Play again";
+            //UserMenu.ButtonText = "Play again";
             // stop time
-            UserMenu.StopTime();
+            //UserMenu.StopTime();
+
+           // UserMenu.
         }
 
     }
@@ -263,6 +269,8 @@ public class Ball : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Kegel"))
         {
+            _strike.volume = _menu.SoundSliderValue;
+
             if (!_strike.isPlaying)
             {
                 _strike.Play();

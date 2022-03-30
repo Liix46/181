@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Kegel : MonoBehaviour
@@ -12,7 +10,7 @@ public class Kegel : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody>();
         _strikeSound = GetComponent<AudioSource>();
-        _strikeSound.volume = .3f;
+        //_strikeSound.volume = .3f;
         _menu = GameObject.Find("UserMenuCanvas").GetComponent<UserMenu>();
     }
 
