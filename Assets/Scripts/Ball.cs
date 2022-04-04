@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Ball : MonoBehaviour
 {
@@ -26,6 +27,7 @@ public class Ball : MonoBehaviour
     private int _score;
 
     private int _lastcountDown;
+    private int _lastScore;
 
     private GameObject[] _kegels;
 
@@ -34,7 +36,6 @@ public class Ball : MonoBehaviour
 
     private const int BonusTime = 5;
 
-    int kegelsFall = 0;
     int kegelsTurn = 0;
 
     private UserMenu _menu;
@@ -48,14 +49,12 @@ public class Ball : MonoBehaviour
         _strike = sounds[0];
         _rollingSound = sounds[1];
         _forceDirection.Set(0, 0, 2000);
-        _startPosition = this.transform.position;
+        _startPosition = transform.position;
         _isBallReady = true;
         _arrowStartPosition = Arrow.transform.position;
         _arrowStarRotation = Arrow.transform.rotation;
 
         ForceIndicator.ForceFactor = 0f;
-
-        _moveStartTime = 0f;
 
         _menu = GameObject.Find("UserMenuCanvas").GetComponent<UserMenu>();
 
@@ -81,6 +80,7 @@ public class Ball : MonoBehaviour
         _score = 0;
 
         _lastcountDown = 0;
+        _lastScore = 0;
 
         _kegels = GameObject.FindGameObjectsWithTag("Kegel");
 
@@ -90,6 +90,11 @@ public class Ball : MonoBehaviour
     [System.Obsolete]
     void Update()
     {
+        if (UserMenu.IsShown)
+        {
+            _strike.Stop();
+            _rollingSound.Stop();
+        }
         if (UserMenu.IsTimeStop())
         {
             return;
@@ -130,7 +135,8 @@ public class Ball : MonoBehaviour
             _isBallReady = false;
             ForceIndicator.ForceFactor = 0f;
 
-            _moveEndTime = Time.time;
+            _moveStartTime = _moveEndTime;
+            _moveEndTime = Time.timeSinceLevelLoad;
             //Debug.Log("UP");
         }
     }
@@ -146,10 +152,8 @@ public class Ball : MonoBehaviour
 
         _rb.velocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
-        this.transform.position = _startPosition;
+        transform.position = _startPosition;
 
-
-        kegelsFall = 0;
         kegelsTurn = 0;
         //Kegels position
         foreach (var kegel in _kegels)
@@ -158,7 +162,6 @@ public class Ball : MonoBehaviour
             {
                 // Debug.Log(kegel.name + " Down\t" + kegel.transform.position.y);
                 kegel.SetActive(false);
-                kegelsFall++;
                 //Debug.Log($"kegelsFall {kegelsFall}");
                 UpdateStatistic(Statistic.DOWN, _downText);
                 UpdateStatistic(Statistic.LEFT, _leftText);
@@ -192,12 +195,16 @@ public class Ball : MonoBehaviour
         {
             //Show menu
             UserMenu.IsShown = true;
-            // Button text
-            //UserMenu.ButtonText = "Play again";
-            // stop time
-            //UserMenu.StopTime();
 
-           // UserMenu.
+            /// Button text
+            ///UserMenu.ButtonText = "Play again";
+            /// stop time
+            ///UserMenu.StopTime();
+
+            // MenuMode
+            UserMenu.userMenuMode = UserMenuMode.GAMEOVER;
+
+
         }
 
     }
@@ -227,7 +234,8 @@ public class Ball : MonoBehaviour
                 tmp.text = "Left : " + (_kegels.Length - _countDown).ToString();
                 break;
             case Statistic.SCORE:
-                int moveTime = (int)(_moveEndTime - _moveStartTime);
+                int moveTime = (int)Mathf.Ceil(_moveEndTime - _moveStartTime);
+                _lastScore = _score;
                 _score += ((_countThrow < 5)
                     ? (_countDown - _lastcountDown) * (5 - _countThrow)
                     : (_countDown - _lastcountDown))
@@ -236,19 +244,19 @@ public class Ball : MonoBehaviour
                         : 1);
                 //Debug.Log($"Score : {_score}");
 
-                tmp.text = $"Score : {_score}  {moveTime}";
+                tmp.text = $"Score : {_score}";
 
                 _moveStartTime = Time.time;
-
+                //Debug.Log("add");
                 GameStat.Moves.Add(new MoveData
                 {
                     Num = _countThrow,
                     Time = moveTime,
-                    KegelsFall = kegelsFall,
-                    Score = _score
+                    KegelsFall = _countDown - _lastcountDown,
+                    Score = _score - _lastScore
 
                 });
-
+                //Debug.Log($"add {GameStat.Moves.Count}");
                 break;
             default:
                 break;
